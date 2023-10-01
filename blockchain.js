@@ -3,7 +3,7 @@ const ec=new EC('secp256k1');
 const SHA256=require('crypto-js/sha256');
 const util = require('util');
 const qrcode = require('qrcode-terminal')
-//const users  =require('Users')
+//const users  =require('Users')  
 
 class Transaction
 {
@@ -16,10 +16,12 @@ class Transaction
         this.productID = productID;
         this.hash=this.calculateHash();
     }
+
     calculateHash()
     {
         return SHA256(this.fromAddress+this.toAddress+this.amount+this.timestamp+this.productID/*this.senderID+this.receiverID+this.manuID*/).toString();
     }
+
     signTransaction(signingKey)
     {
         if(signingKey.getPublic('hex')!==this.fromAddress)
@@ -30,6 +32,7 @@ class Transaction
         const sig=signingKey.sign(hashTx,'base64');
         this.signature=sig.toDER('hex');
     }
+
     isValid()
     {
         if(this.fromAddress==null)
@@ -46,15 +49,15 @@ class Transaction
         this.distributor_confirmed = true;
       }
     
-      clientConfirm() {
+    clientConfirm() {
         this.client_confirmed = true;
-      }
+    }
     
-      isConfirmed() {
+    isConfirmed() {
         return this.distributor_confirmed && this.client_confirmed;
-      }
+    }
     
-      status() {
+    status() {
         if (this.isConfirmed) {
           return 'received';
         } else if (this.distributor_confirmed) {
@@ -94,16 +97,16 @@ class Block
     }
     hasValidTransaction()
     {
-        /*for(const tx of this.transaction)
-        {
-            if(!tx.isValid())
-             return false;
-        }*/
-        return true;
-        /*if(this.merkelHash!=this.merkelRoot())
+        // for(const tx of this.transaction)
+        // {
+        //     if(!tx.isValid())
+        //      return false;
+        // }
+        // return true;
+        if(this.merkelHash!=this.merkelRoot())
          return false;
 
-         return true;*/
+         return true;
     }
     merkelRoot()
     {  
@@ -154,7 +157,7 @@ class Blockchain
     constructor()
     {
         this.chain=[this.createGenesisBlock()];//array of blocks
-        this.difficulty=2;//mining difficulty
+        this.difficulty=4;//mining difficulty
         this.miningReward=100;
         this.pendingTransactions = []
     }
@@ -228,9 +231,6 @@ class Blockchain
         if(!transaction.isValid())
             throw new Error("Cannot add invalid transaction to chain");
         
-        
-       //if(this.getBalanceofAddress(transaction.fromAddres)<100)//let security deposit=100
-           // throw new Error("Balance is less than or equal to security deposit....Cannot make transactions");
 
         this.pendingTransactions.push(transaction);
     }//add transaction to a block
@@ -254,18 +254,68 @@ class Blockchain
             }
           }  
         console.error('Product ID not found in the blockchain.');
-
     }  
-    
-    checkFromAdress(productID, fromAddress){
+    //confict case between Distributer and Consumer
+    conflixtResolve(productID,fromID,toID,distributorResp,consumerResp) 
+    {
+        //check pending transactions to see if either is lying
+        for(let i=this.pendingTransactions.length-1;i>=0;i--){
+            const transaction = this.pendingTransactions[i]
+            if (transaction.productID === productID) 
+                {   
+                    console.log("Transaction currently in pending state. Please wait! ")
+                    return;
+                }
+        }
+        //check blockcahin for lies
+        for (let i = this.chain.length - 1; i >= 0; i--) {
+            const block = this.chain[i];
+            for (let j = block.transactions.length - 1; j >= 0; j--) {
+              const transaction = block.transactions[j];
+              if (transaction.productID === productID) 
+                {
+                    if(distributorResp && transaction.fromAddress!==fromID) console.log("Distributer is lying! ")
+                    if(!consumerResp && transaction.toAddress===toID) console.log("Consumer is lying! ")
+                    // console.log("Printing test sentence")
+                    return;
+                }
+            }
+          }  
+        console.error('Product ID not found in the blockchain.');
+    }  
+
+    checkFromAdressHoldsProduct(productID,fromPublicKey) 
+    {
+        //go through pending transactions
+        for(let i = this.pendingTransactions.length - 1; i >= 0; i--){
+            const transaction = this.pendingTransactions[i]
+            if (transaction.productID === productID) 
+                {
+                    if(transaction.toAddress===fromPublicKey)   return true
+                }
+        }
         
+        for (let i = this.chain.length - 1; i >= 0; i--) {
+            const block = this.chain[i];
+            for (let j = block.transactions.length - 1; j >= 0; j--) {
+              const transaction = block.transactions[j];
+              if (transaction.productID === productID) 
+                {
+                    if(transaction.toAddress===fromPublicKey)   return true
+                }
+            }
+          }  
+          return false
+    }  
+    checkFromAdress(productID, fromAddress){
+
         for (let i = this.pendingTransactions.length - 1; i >= 0; i--) {
             const transaction = this.pendingTransactions[i];
             if (transaction.productID === productID && transaction.toAddress === fromAddress) {
               return true;
             }
           }
-          for (let i = this.chain.length - 1; i >= 0; i--) {
+        for (let i = this.chain.length - 1; i >= 0; i--) {
             const block = this.chain[i];
             for (let j = block.transactions.length - 1; j >= 0; j--) {
               const transaction = block.transactions[j];
@@ -273,8 +323,7 @@ class Blockchain
                 return true;
               }
             }
-          }
-          
+        }
         return false;
       }
 
