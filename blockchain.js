@@ -67,7 +67,7 @@ class Transaction
 }
 class Block
 {
-    constructor(timestamp,transactions,previousHash='',index)
+    constructor(timestamp,transactions,previousHash='',index=0)
     {
         this.index=index;
         this.timestamp=timestamp;
@@ -143,7 +143,9 @@ class Block
                   nodePerItr = (nodePerItr + 1)/2;
               }
             }
-            console.log("merkelHash:",nodeArr[0]);
+            if(this.index!=0){
+                console.log("merkelHash:",nodeArr[0]);
+            }
             return nodeArr[0];
     }    
 }
@@ -172,7 +174,7 @@ class Blockchain
         let block=new Block(Date.now(),this.pendingTransactions,this.getLatestBlock().hash);
         block.mineBlock(this.difficulty);
 
-        console.log("Block mined");
+        // console.log("Block mined");  as the merkel root geenrating function prints the has onece mined
         block.index=this.chain.length;
         this.chain.push(block);
         this.pendingTransactions=[];
