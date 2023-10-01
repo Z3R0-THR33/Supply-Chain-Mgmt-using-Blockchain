@@ -33,7 +33,7 @@ function isAddDistributor(fromPublicKey) {
 //    console.log(('Click 0: Add transactions\nClick 1: See transactions added\nClick 2: Start mining block\nClick 3: confirm delivery\nClick 4: print blockchain\nClick 5: distributor initiates delivery\nClick 6: QR code status\nClick 7: distributor confirms dispatch\nClick 8: issue with delivery (only if you have not received the product)\nClick 9: Exit\n'))
 
 while(1){
-    console.log(('Click 0: Add transactions\nClick 1: See pending transactions\nClick 2: Start mining block\nClick 3: print blockchain\nClick 4: QR code status\nClick 5: Dispute! \nClick 6: Exit\n'))
+    console.log(('\nClick 0: Add transactions\nClick 1: See pending transactions\nClick 2: Start mining block\nClick 3: print blockchain\nClick 4: QR code status\nClick 5: Dispute! \nClick 6: Exit\n'))
     const choice = prompt()
     if(choice==6)   break;
     switch (choice) {
@@ -72,7 +72,7 @@ while(1){
                 console.log(tx)
             break;
         case '2':
-            fromPublicAdd = prompt ("From user public key: ")
+            fromPublicAdd = prompt ("Miner public key: ")
             bc.minePendingTransactions(fromPublicAdd)
             break;
         case '3':
