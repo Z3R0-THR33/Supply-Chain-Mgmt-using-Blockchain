@@ -53,19 +53,19 @@ function checkDeposit(deposit) {
 }
 
 //to check if we are creating a duplicate user
-function checkDupKey(key) {
-    Users.Manufacturers.forEach(function(pubKey) {
-        if (key === pubKey) {
+function checkDupKey(pubKey) {
+    Users.Manufacturers.forEach(function(Manufacturer) {
+        if (pubKey === Manufacturer.key) {
             throw new Error("Key already exists! Duplicate key entered.");
         }
     });
-    Users.Distributors.forEach(function(pubKey) {
-        if (key === pubKey) {
+    Users.Distributors.forEach(function(Distributor) {
+        if (pubKey === Distributor.key) {
             throw new Error("Key already exists! Duplicate key entered.");
         }
     });
-    Users.Clients.forEach(function(pubKey) {
-        if (key === pubKey) {
+    Users.Clients.forEach(function(Client) {
+        if (pubKey === Client.key) {
             throw new Error("Key already exists! Duplicate key entered.");
         }
     });
@@ -75,7 +75,7 @@ function register() {
     const type = prompt("Enter type: ");
     // key is the public key 
     const key = prompt("Enter key: ");
-    checkDupKey(key);
+    checkDupKey(key)
     switch (type) {
         case 'M':
             Users.addManufacturer(key);
