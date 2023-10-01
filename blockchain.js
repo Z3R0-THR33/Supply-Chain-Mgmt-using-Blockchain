@@ -98,18 +98,17 @@ class Block
         {
             if(!tx.isValid())
              return false;
-        }
-        return true;*/
-        if(this.merkelHash!=this.merkelRoot())
+        }*/
+        return true;
+        /*if(this.merkelHash!=this.merkelRoot())
          return false;
 
-         return true;
+         return true;*/
     }
     merkelRoot()
     {  
         const leafNodes = this.transactions.length;//_leafNodes is the number of transactions a block can store 
         let nodePerItr = leafNodes;//nodePerItr is variable which gets updated every iteration of loop. It is number of leafNodes/hashNodes in each level of merkel tree
-        
             let nodeArr = [];// nodeArr stores hashes in each nodes 
             let low = 0;// A low pointer 
             let h = low+1; //High pointer
@@ -123,7 +122,7 @@ class Block
             while(nodePerItr >1){//Loop executes untill we get the merkel root. Which means one hash node in merkel root level 
                 if(nodePerItr % 2 == 0){ 
                     while(h<=nodePerItr-1){
-                      nodeArr[i] =  SHA256(nodeArr[low] + nodeArr[h] + Date.now());
+                      nodeArr[i] =  SHA256(nodeArr[low] + nodeArr[h] + Date.now()).toString();
                       low = h+1;
                       h = low + 1;
                       i++;
@@ -132,7 +131,7 @@ class Block
               }
               else {  
                     while(h<=nodePerItr-1){
-                      nodeArr[i] =  SHA256(nodeArr[low] + nodeArr[h] + Date.now());
+                      nodeArr[i] =  SHA256(nodeArr[low] + nodeArr[h] + Date.now()).toString();
                       low = h+1;
                       h = low + 1;
                       i++;
@@ -144,39 +143,9 @@ class Block
                   nodePerItr = (nodePerItr + 1)/2;
               }
             }
+            console.log("merkelHash:",nodeArr[0]);
             return nodeArr[0];
-    }
-    /*calculateMerkleHash(transactions) {
-        // Helper function to calculate the hash of a single transaction
-        calculateTransactionHash(transaction) 
-        {
-          //const hash = crypto.createHash('sha256');
-          //return hash.update(transaction).digest('hex');
-            return transaction.calculateHash();
-        }
-      
-        // Base case: If there are no transactions, return an empty hash
-        if (transactions.length === 0) {
-          return crypto.createHash('sha256').digest('hex');
-        }
-      
-        // If there's only one transaction, return its hash
-        if (transactions.length === 1) {
-          return calculateTransactionHash(transactions[0]);
-        }
-      
-        // Recursively calculate the Merkle hash of pairs of transactions
-        const pairedHashes = [];
-        for (let i = 0; i < transactions.length; i += 2) {
-          const tx1 = transactions[i];
-          const tx2 = i + 1 < transactions.length ? transactions[i + 1] : tx1;
-          const combinedHash = calculateTransactionHash(tx1 + tx2);
-          pairedHashes.push(combinedHash);
-        }
-      
-        // Recursively call the function on the paired hashes
-        return calculateMerkleHash(pairedHashes);
-      }*/     
+    }    
 }
 class Blockchain
 {
@@ -220,8 +189,6 @@ class Blockchain
                     bal-=trans.amount;
                 if(trans.toAddress===address)
                     bal+=trans.amount;
-
-                    console.log("@",bal,"@")
             }
         }
         return bal;
