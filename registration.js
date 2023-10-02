@@ -27,11 +27,24 @@ class Client {
         this.deposit = deposit;
     }
 }
-
+class ThirdParty {
+    constructor() {
+      this.userBalances = {}; // to store user balances
+    }
+  
+    receiveDeposit(userKey, amount) {             
+      this.userBalances[userKey] = (this.userBalances[userKey] || 0) + amount;
+    }
+  
+    getUserBalance(userKey) {        // Not necessary. If we want to view the security deposit for any user (using public key), then we can keep it
+      return this.userBalances[userKey] || 0;
+    }
+  }
 class Users {
     static Manufacturers = [];
     static Distributors = [];
     static Clients = [];
+    static thirdParty = new ThirdParty();
 
     static addManufacturer(key) {
         this.Manufacturers.push(new Manufacturer(key));
@@ -39,10 +52,12 @@ class Users {
 
     static addDistributor(key, deposit) {
         this.Distributors.push(new Distributor(key, deposit));
+        this.thirdParty.receiveDeposit(key, deposit); // Deposit transfer to the third-party
     }
 
     static addClient(key, deposit) {
         this.Clients.push(new Client(key, deposit));
+        this.thirdParty.receiveDeposit(key, deposit); // Deposit transfer to the third-party
     }
 }
 
