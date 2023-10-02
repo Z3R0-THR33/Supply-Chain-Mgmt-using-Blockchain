@@ -47,7 +47,7 @@ class Transaction
     }
     distributorConfirm() {
         this.distributor_confirmed = true;
-      }
+    }
     
     clientConfirm() {
         this.client_confirmed = true;
@@ -57,15 +57,15 @@ class Transaction
         return this.distributor_confirmed && this.client_confirmed;
     }
     
-    status() {
-        if (this.isConfirmed) {
-          return 'received';
-        } else if (this.distributor_confirmed) {
-          return 'dispatched';
-        } else {
-          return 'not dispatched';
-        }
-    }
+    // status() {
+    //     if (this.isConfirmed) {
+    //       return 'received';
+    //     } else if (this.distributor_confirmed) {
+    //       return 'dispatched';
+    //     } else {
+    //       return 'not dispatched';
+    //     }
+    // }
    
 }
 class Block
@@ -326,7 +326,47 @@ class Blockchain
         }
         return false;
       }
-
+      //checks confiramtion or confirms distr, or confirms client
+    isConfirmedTx(fromPublicAdd,choice){
+        var flag=0
+        for(let i = this.pendingTransactions.length - 1; i >= 0; i--){
+            const transaction = this.pendingTransactions[i]
+            if (transaction.fromAddress === fromPublicAdd) 
+                {
+                    flag=1
+                    if(choice===0){if(transaction.isConfirmed()){
+                        return true
+                    }}else if(choice ===1){
+                        transaction.distributorConfirm() 
+                    }else if(choice ===2){
+                        transaction.clientConfirm()
+                    }
+                }
+        }
+        
+        for (let i = this.chain.length - 1; i >= 0; i--) {
+            const block = this.chain[i];
+            for (let j = block.transactions.length - 1; j >= 0; j--) {
+              const transaction = block.transactions[j];
+              if (transaction.fromAddress === fromPublicAdd) 
+                {
+                    flag=1
+                    if(choice===0){
+                        if(transaction.isConfirmed()){
+                        return true
+                    }
+                    }else if(choice ===1){
+                        transaction.distributorConfirm() 
+                    }else if(choice ===2){
+                        transaction.clientConfirm()
+                    }
+                }
+                }
+            }
+          
+          if(flag)  return false
+          else return true
+      }
 }
 
 module.exports.Blockchain=Blockchain;
