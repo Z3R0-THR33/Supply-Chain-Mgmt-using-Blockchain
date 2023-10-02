@@ -1,6 +1,7 @@
 
 const Registration = require('./registration.js')
 const Users  = Registration.Users
+const ThirdParty = Registration.ThirdParty
 const { Blockchain, Transaction} = require("./blockchain");
 var bc = new Blockchain();
 const prompt = require('prompt-sync')();
@@ -33,14 +34,18 @@ function isAddDistributor(fromPublicKey) {
 //    console.log(('Click 0: Add transactions\nClick 1: See transactions added\nClick 2: Start mining block\nClick 3: confirm delivery\nClick 4: print blockchain\nClick 5: distributor initiates delivery\nClick 6: QR code status\nClick 7: distributor confirms dispatch\nClick 8: issue with delivery (only if you have not received the product)\nClick 9: Exit\n'))
 
 while(1){
-    console.log(('\nClick 0: Add transactions\nClick 1: See pending transactions\nClick 2: Start mining block\nClick 3: print blockchain\nClick 4: QR code status\nClick 5: Dispute! \nClick 6: Check if blockchain is valid\nClick 7: Exit\n'))
+    console.log(('\nClick 0: Add transactions\nClick 1: See pending transactions\nClick 2: Start mining block\nClick 3: print blockchain\nClick 4: QR code status\nClick 5: Dispute! \nClick 6: Distributer Confrim\nClick 7: Client confirm\nClick 8: Both confirm\nClick 9: Check if blockchain valid\nClick 10: Exit\n'))
     const choice = prompt()
-    if(choice==7)   break;
+    if(choice==10)   break;
     switch (choice) {
         case '0':
 
             //rn we are taking public key and private key so that toFromVerification works we can make it better by just taking name and priate key 
             fromPublicKey= prompt('From user public key: ')
+            if(!bc.isConfirmedTx(distID,0)){
+               console.log("Prev transaction not confimed!")
+               break 
+            }
             // check if distrubuters transacts ahve been cleared then only add 
             toPublicKey = prompt('To user public key: ')
             productID = prompt('ProductID: ')
@@ -84,6 +89,7 @@ while(1){
             //Works if conflict arrises in the last transaction
             productID = prompt('Enter product ID: ')
             distributorID = prompt('Distributer ID:  ')
+           
             distributorResp = prompt('What does Distributer say? Enter 1 for Dispatched and 0 for NOT Dispatched:  ')
 
             consumerID = prompt('Consumer ID:  ')
@@ -93,6 +99,19 @@ while(1){
             console.log("\n")
             break;  
         case'6':
+        //distr confirm
+            bc.isConfirmedTx(distributorID,1)
+            break;
+        case'7':
+        //client confirm
+            bc.isConfirmedTx(distributorID,2)
+            break;
+        case'8':
+        //both confirm
+            console.log(bc.isConfirmedTx(distributorID,0))
+            break;
+        case'9':
+        //check blockchain valid
             console.log(bc.isValidChain())
             break
         default:
