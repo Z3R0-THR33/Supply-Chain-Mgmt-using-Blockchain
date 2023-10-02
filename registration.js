@@ -1,6 +1,6 @@
 const prompt = require('prompt-sync')();
 let manufacturerInstance = null;
-const depositAmt = 100;
+const depositAmt = 1000;
 
 class Manufacturer {
     constructor(key) {
@@ -27,6 +27,7 @@ class Client {
         this.deposit = deposit;
     }
 }
+
 class ThirdParty {
     constructor() {
       this.userBalances = {}; // to store user balances
@@ -39,7 +40,8 @@ class ThirdParty {
     getUserBalance(userKey) {        // Not necessary. If we want to view the security deposit for any user (using public key), then we can keep it
       return this.userBalances[userKey] || 0;
     }
-  }
+}
+
 class Users {
     static Manufacturers = [];
     static Distributors = [];
@@ -59,11 +61,16 @@ class Users {
         this.Clients.push(new Client(key, deposit));
         this.thirdParty.receiveDeposit(key, deposit); // Deposit transfer to the third-party
     }
+    //deduct ammount
+    static deduct(key,ammount){
+        this.thirdParty.userBalances[key]-=ammount
+        console.log(""+ammount+" is deducted.")
+    }
 }
 
 function checkDeposit(deposit) {
     if (deposit < depositAmt) {
-        throw new Error("Deposit should be more than 100");
+        throw new Error("Deposit should be more than 1000");
     }
 }
 
@@ -120,3 +127,4 @@ while(1){
 }
 
 module.exports.Users = Users
+module.exports.ThirdParty = ThirdParty
