@@ -7,63 +7,25 @@ const mywalletAddress=myKey.getPublic('hex');
 const pvt = myKey.getPrivate('hex');
 console.log(mywalletAddress)
 console.log(pvt)
-// // //dummy
-// // const myKeyDummy= ec.keyFromPrivate('2abc92d70279dde7599ec7010f13580cdbad92d9ad754ac782cd453834e47ad6');
-// // const mywalletAddressDummy=myKey.getPublic('hex');
+// //dummy
+// const myKeyDummy= ec.keyFromPrivate('2abc92d70279dde7599ec7010f13580cdbad92d9ad754ac782cd453834e47ad6');
+// const mywalletAddressDummy=myKey.getPublic('hex');
 
-// let pjt=new Blockchain();
+let pjt=new Blockchain();
 
-// console.log('Balance is:',pjt.getBalanceofAddress(mywalletAddress));                //Inital balance
+console.log('Balance is:',pjt.getBalanceofAddress(mywalletAddress));                //Inital balance
 
-// const tx1=new Transaction(mywalletAddress,'to someone else public key goes herMr X',30);
-// tx1.signTransaction(myKey);
-// pjt.addTransaction(tx1);
+const tx1=new Transaction(mywalletAddress,'to someone else public key goes herMr X',30);
+tx1.signTransaction(myKey);
+pjt.addTransaction(tx1);
 
-// console.log('\nStarting the miner....');
-// pjt.minePendingTransactions(mywalletAddress);
-// console.log('Balance is:',pjt.getBalanceofAddress(mywalletAddress));
+console.log('\nStarting the miner....');
+pjt.minePendingTransactions(mywalletAddress);
+console.log('Balance is:',pjt.getBalanceofAddress(mywalletAddress));
 
-// console.log("\n \n \n")
+console.log("\n \n \n")
 
-// pjt.chain[1].transactions[1].amount = 1000;
-// console.log(pjt.isValidChain())
+pjt.chain[1].transactions[1].amount = 1000;
+console.log(pjt.isValidChain())
 
-
-
-
-
-
-// // // second txn 
-// // const tx2=new Transaction(mywalletAddress,'to someone else public key goes herMr X',20);
-// // tx2.signTransaction(myKey);
-// // pjt.addTransaction(tx2);
-
-// // console.log('\nStarting the miner....');
-// // pjt.minePendingTransactions(mywalletAddress);
-
-// // console.log('Balance is:',pjt.getBalanceofAddress(mywalletAddress));
-
-// // // third txn 
-// // const tx3=new Transaction(mywalletAddress,'to someone else public key goes herMr X',20);
-// // tx3.signTransaction(myKey);
-// // pjt.addTransaction(tx3);
-
-// // console.log('\nStarting the miner....');
-// // pjt.minePendingTransactions(mywalletAddress);
-
-// // console.log('Balance is:',pjt.getBalanceofAddress(mywalletAddress));
-
-
-// // // fourth txn 
-// // const tx4=new Transaction(mywalletAddress,'to someone else public key goes herMr X',20);
-// // tx4.signTransaction(myKey);
-// // pjt.addTransaction(tx4);
-
-// // console.log('\nStarting the miner....');
-// // pjt.minePendingTransactions(mywalletAddress);
-
-// // console.log('Balance is:',pjt.getBalanceofAddress(mywalletAddress));
-
-
-// // // console.log(pjt.getLatestBlock());
-// pjt.printBlockchain();
+pjt.printBlockchain(); 

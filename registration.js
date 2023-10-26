@@ -1,5 +1,5 @@
 const prompt = require('prompt-sync')();
-let manufacturerInstance = null;
+let manufacturerInstance = null;//null if no mani yet
 const depositAmt = 1000;
 
 class Manufacturer {
@@ -40,6 +40,10 @@ class ThirdParty {
     getUserBalance(userKey) {        // Not necessary. If we want to view the security deposit for any user (using public key), then we can keep it
       return this.userBalances[userKey] || 0;
     }
+    deduct(key,ammount){
+        this.userBalances[key]-=ammount
+        console.log(""+ammount+" is deducted.")
+    }
 }
 
 class Users {
@@ -62,15 +66,12 @@ class Users {
         this.thirdParty.receiveDeposit(key, deposit); // Deposit transfer to the third-party
     }
     //deduct ammount
-    static deduct(key,ammount){
-        this.thirdParty.userBalances[key]-=ammount
-        console.log(""+ammount+" is deducted.")
-    }
+    
 }
 
 function checkDeposit(deposit) {
     if (deposit < depositAmt) {
-        throw new Error("Deposit should be more than 1000");
+        throw new Error("Deposit should be more than "+depositAmt);
     }
 }
 

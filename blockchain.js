@@ -3,7 +3,8 @@ const ec=new EC('secp256k1');
 const SHA256=require('crypto-js/sha256');
 const util = require('util');
 const qrcode = require('qrcode-terminal')
-//const users  =require('Users')  
+const {ThirdParty} = require('./registration')
+var tp = new ThirdParty();
 
 class Transaction
 {
@@ -56,16 +57,6 @@ class Transaction
     isConfirmed() {
         return this.distributor_confirmed && this.client_confirmed;
     }
-    
-    // status() {
-    //     if (this.isConfirmed) {
-    //       return 'received';
-    //     } else if (this.distributor_confirmed) {
-    //       return 'dispatched';
-    //     } else {
-    //       return 'not dispatched';
-    //     }
-    // }
    
 }
 class Block
@@ -97,12 +88,12 @@ class Block
     }
     hasValidTransaction()
     {
-        // for(const tx of this.transaction)
-        // {
-        //     if(!tx.isValid())
-        //      return false;
-        // }
-        // return true;
+        for(const tx of this.transaction)
+        {
+            if(!tx.isValid())
+             return false;
+        }
+        return true;
         if(this.merkelHash!=this.merkelRoot())
          return false;
 
@@ -201,28 +192,6 @@ class Blockchain
     printBlockchain(){
         console.log(util.inspect(this.chain,{depth:null}))
     }
-    isValidChain()
-    {
-        for(let i=1;i<this.chain.length;i++)
-        {
-            const currentBlock=this.chain[i];
-            const prevBlock=this.chain[i-1];
-            
-            if(!currentBlock.hasValidTransaction())
-            {
-                return false;
-            }
-            if(currentBlock.hash!=currentBlock.calculateHash())
-            {
-                return false;
-            }
-            if(currentBlock.previousHash!=prevBlock.hash)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
     addTransaction(transaction)
     {
         if(!transaction.fromAddress || !transaction.toAddress)
@@ -252,7 +221,7 @@ class Blockchain
               return;
                 }
             }
-          }  
+        }
         console.error('Product ID not found in the blockchain.');
     }  
     //confict case between Distributer and Consumer
@@ -274,8 +243,21 @@ class Blockchain
               const transaction = block.transactions[j];
               if (transaction.productID === productID) 
                 {
-                    if(distributorResp && transaction.fromAddress!==fromID) console.log("Distributer is lying! ")
-                    if(!consumerResp && transaction.toAddress===toID) console.log("Consumer is lying! ")
+                    console.log(productID)
+                    if(distributorResp==='1' && consumerResp==='1'){
+                        
+                        console.log("No conflict")
+                    }
+                    if(distributorResp==='1' && consumerResp==="0" && transaction.fromAddress===fromID && transaction.toAddress===toID) {
+                        tp.deduct(transaction.toAddress,transaction.amount)
+                        console.log("Consumer is lying, amount deducted: "+transaction.amount)
+                    }
+                    if(distributorResp==='1' && consumerResp==="0" && transaction.fromAddress!==fromID ) {
+                        tp.deduct(transaction.fromAddress,transaction.amount)
+                        console.log("Distributor is lying, amount decuted"+transaction.amout)
+                    }
+                    if(distributorResp==='1' && consumerResp==='0' && transaction.fromAddress===fromID && transaction.toAddress !== toID) {console.log("Someone else recieved the product")}
+                    
                     // console.log("Printing test sentence")
                     return;
                 }
@@ -308,7 +290,7 @@ class Blockchain
           return false
     }  
     checkFromAdress(productID, fromAddress){
-
+        //
         for (let i = this.pendingTransactions.length - 1; i >= 0; i--) {
             const transaction = this.pendingTransactions[i];
             if (transaction.productID === productID && transaction.toAddress === fromAddress) {
@@ -328,8 +310,8 @@ class Blockchain
       }
       //checks confiramtion or confirms distr, or confirms client
     isConfirmedTx(fromPublicAdd,choice){
-        var flag=0
-        for(let i = this.pendingTransactions.length - 1; i >= 0; i--){
+        var flag=0//to check if dist does not have a previous trx
+        for(let i = this.pendingTransactions.length - 1; i >= 0; i--){//to check if the previous transaction is apporoved by both
             const transaction = this.pendingTransactions[i]
             if (transaction.fromAddress === fromPublicAdd) 
                 {
